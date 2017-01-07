@@ -10,11 +10,20 @@ int main(){
 	cout << "Enter name of code file (no ext): ";
 	string name;
 	cin >> name;
+	cout << "Include cells at the end of the program? [y/n] ";
+	char cell_bug;
+	cin >> cell_bug;
+	int numberOfCells;
+	if(cell_bug == 'y'){
+		cout << "How many sets of 4 cells will be shown? (max 4096)\nInput: ";
+		cin >> numberOfCells;
+	}
 	ofstream file;
 	file.open(name + ".cpp");
-	cout << "Enter the command: ";
+	cout << "\nEnter the command: ";
 	char command[16384] = {0};
 	cin >> command;
+
 	cout << "\nWriting file...\n";
 
 	file << "#include <stdio.h>\n#include <iostream>\nusing namespace std;\n";
@@ -23,24 +32,26 @@ int main(){
 
 	for(char &c : command){
 		if(c == '>') {
-			file << "++ptr;\n";
+			file << "\t++ptr;\n";
 		} else if(c == '<'){
-			file << "--ptr;\n";
+			file << "\t--ptr;\n";
 		} else if(c == '+'){
-			file << "++*ptr;\n";
+			file << "\t++*ptr;\n";
 		} else if(c == '-'){
-			file << "--*ptr;\n";
+			file << "\t--*ptr;\n";
 		} else if(c == '.'){
-			file << "putchar(*ptr);\n";
+			file << "\tputchar(*ptr);\n";
 		} else if(c == ','){
-			file << "*ptr = getchar();\n";
+			file << "\t*ptr = getchar();\n";
 		} else if(c == '['){
-			file << "while (*ptr) {\n";
+			file << "\twhile (*ptr) {\n";
 		} else if(c == ']'){
-			file << "}\n";
+			file << "\t}\n";
 		}
 	}
-	file << "for(int i = 0; i < 128; i += 4){cout << (int) (cells[i]) << \" \";cout << (int) (cells[i+1]) << \" \";cout << (int) (cells[i+2]) << \" \";cout << (int) (cells[i+3]) << \"\\n\";}\n";
+	if(cell_bug == 'y'){
+		file << "\tfor(int i = 0; i < " << numberOfCells * 4 << "; i += 4){\n\t\tcout << (int) (cells[i]) << \" \";\n\t\tcout << (int) (cells[i+1]) << \" \";\n\t\tcout << (int) (cells[i+2]) << \" \";\n\t\tcout << (int) (cells[i+3]) << \"\\n\";\n\t}\n";
+	}
 	file << "}";
 	file.close();
 	cout << "Do you want to compile? [y/n] ";
