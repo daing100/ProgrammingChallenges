@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int main(){
+int main(){ // is very inefficient
 	cout << "Enter name of code file (no ext): ";
 	string name;
 	cin >> name;
