@@ -5,6 +5,23 @@
 
 using namespace std;
 
+
+WINDOW *createNewWindow(int h, int w, int x, int y){
+	WINDOW *localWindow;
+
+	localWindow = newwin(h, w, x, y);
+	box(localWindow, 0, 0);
+	wrefresh(localWindow);
+
+	return localWindow;
+}
+
+void destroyWindow(WINDOW *localWindow){
+	wborder(localWindow, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+	wrefresh(localWindow);
+	delwin(localWindow);
+}
+
 template <size_t arr_x, size_t arr_y>
 int neighborCheck(int x, int y, char (&board)[arr_x][arr_y][2]){
 	int count = 0;
@@ -30,6 +47,7 @@ void fillArray(char (&board)[arr_x][arr_y][2], int layer){
 }
 
 int main(){
+	WINDOW *info;
 	int ch;
 	int x, y;
 	int doSession = 1;
@@ -105,18 +123,31 @@ int main(){
 		}
 	}
 
-	mousemask(BUTTON1_CLICKED | BUTTON3_CLICKED, NULL);
+	mousemask(BUTTON1_CLICKED | BUTTON3_CLICKED | REPORT_MOUSE_POSITION, NULL);
 
-	while(doSession){
+	if(doSession){
+		refresh();
+		info = createNewWindow(row, 46, 0, 64);
+
+		int tx, ty;
+
+		getmaxyx(info, ty, tx);
+
+		mvwprintw(info, 1, (tx-11) / 2, "INFORMATION");
+
 		while(true){
 			ch = getch();
 			MEVENT event;
 
 			if(ch == KEY_END) goto end;
+			if(ch == KEY_HOME){
+				destroyWindow(info);
+				goto mainMenu;
+			}
 			if(ch == '\r') break;
 			if(ch == KEY_MOUSE){
 				if(nc_getmouse(&event) == OK){
-					if(event.x < 64 || event.y < 64){
+					if(event.x < 64 && event.y < 64){
 						if(event.bstate & BUTTON1_CLICKED){
 							board[event.x][event.y][0] = 1;
 							mvaddch(event.y, event.x, '#');
@@ -154,11 +185,17 @@ int main(){
 
 			int ch2 = getch();
 			if(ch2 == KEY_END) goto end;
-			if(ch2 == KEY_HOME) goto mainMenu;
+			if(ch2 == KEY_HOME){
+				destroyWindow(info);
+				goto mainMenu;
+			}
 		}
 	}
 
 	end:
+	if(doSession){
+		destroyWindow(info);
+	}
 
 	curs_set(1);
 
