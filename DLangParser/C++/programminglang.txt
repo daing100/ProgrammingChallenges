@@ -1,0 +1,70 @@
+NOTE1: 	Whitespace is important, as in: only spaces and newlines are allowed.
+	Spaces are used for separation, and newlines will be for line separation.
+
+NOTE2: 	I don't know how many types this will be compatible with to begin with.
+	Probably only the number types (int, char, etc.) since they cast to each other easily.
+	Additionaly, strings.
+
+NOTE3:	Array sizes need to be constant values, and not variables.
+  
+start of the program: 		<-------->-------<-------->
+c++:
+#include <iostream>
+#include <stdlib.h>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+int std_var = 0; 		// to prevent null pointers
+int *b = &std_var;
+string std_str = "";		// prevent null pointer to str.
+string *c = &std_str;
+
+standard stuff: 		<-------->-------<-------->
+use var; 			// set current working variable => c++: *b = (int*)(&var);
+make type name value/var; 	// variable declaration => c++: type name = value;
+
+array type size name;		// creates an array filled with 0. => c++: vector<type> name(size, 0);
+name[pos];			// returns pos-th position of array "name". => c++: name[pos];
+
+if operator v1; 		// performs a conditional => c++: bool t_n = *b operator v1;
+								  if(t_n){}
+ife operator v1 v2; 		// performs a conditional => c++: bool t_n = (*b operator v1 == v2);
+								  if(t_n){}
+then (regular statement); 	// puts statement inside nearest conditional.
+
+else (regular statement); 	// if condition is false do a statement. => c++: if(false){}else statement;
+elsb; 				// opens an else block, similar to if. => c++: if(false){}else{}
+
+say; 				// write current working var to stdout. => c++: cout << *b;
+sayc;				// write current working str var to stdout. => c++: cout << *c;
+sayv s1 s2 s3 ... s_n;	 	// writes to stdout. => c++: cout << s1 << s2 << s3 << ... << s_n;
+listen; 			// stores input in current working str var. => c++: cin >> *c;
+stn;				// stores an int representation of *c in *b. => c++: *b = stoi(*c, nullptr, 10);
+listenv var; 			// stores input in given variable. => c++: cin >> var;
+
+<<< label; 			// set a label. => c++: label:
+>>> label; 			// goto label. => c++: goto label;
+
++ v1; 				// set current working var += v1. c++: *b += v1; 
++= v1 v2; 			// store v1 + v2 in current working var. c++: *b = v1 + v2;
+- v1; 				// set current working var -= v1. c++: *b -= v1;
+-= v1 v2; 			// store v1 - v2 in current working var. c++: *b = v1 - v2;
+* v1; 				// set current working var *= v1. c++: *b *= v1;
+*= v1 v2; 			// store v1 * v2 in current working var. c++: *b = v1 * v2;
+/ v1; 				// set current working var /= v1. c++: *b /= v1;
+/= v1 v2; 			// store v1 / v2 in current working var. c++: *b = v1 / v2;
+= v1; 				// set current working var to v1. c++: *b = v1;
+
+function stuff:			<-------->-------<-------->
+Each file will be either a function file, or an execution file.
+A function file will be parsed=>compiled first, then the file which calls the function will
+provide it with an input like this:
+
+function funcName v1 v2 v3 ... v_n;
+
+This will make c++ call:
+system(funcName + " " + v1 + " " + v2 + " " + v3 + " " + ... + v(n));
+Effectively giving us the terminal/cmd command: funcName v1 v2 v3 ... v(n)
+Alternatively, functionp can be used to signify an already built function.
