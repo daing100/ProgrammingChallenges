@@ -4,8 +4,6 @@ NOTE1: 	Whitespace is important, as in: only spaces and newlines are allowed.
 NOTE2: 	I don't know how many types this will be compatible with to begin with.
 	Probably only the number types (int, char, etc.) since they cast to each other easily.
 	Additionaly, strings.
-
-NOTE3:	Array sizes need to be constant values, and not variables.
   
 start of the program: 		<-------->-------<-------->
 c++:
@@ -35,7 +33,6 @@ ife operator v1 v2; 		// performs a conditional => c++: bool t_n = (*b operator 
 then (regular statement); 	// puts statement inside nearest conditional.
 
 else (regular statement); 	// if condition is false do a statement. => c++: if(false){}else statement;
-elsb; 				// opens an else block, similar to if. => c++: if(false){}else{}
 
 say; 				// write current working var to stdout. => c++: cout << *b;
 sayc;				// write current working str var to stdout. => c++: cout << *c;
@@ -57,7 +54,7 @@ listenv var; 			// stores input in given variable. => c++: cin >> var;
 /= v1 v2; 			// store v1 / v2 in current working var. c++: *b = v1 / v2;
 = v1; 				// set current working var to v1. c++: *b = v1;
 
-function stuff:			<-------->-------<-------->
+function stuff:			<-------->-------<--------> UNIMPLEMENTED
 Each file will be either a function file, or an execution file.
 A function file will be parsed=>compiled first, then the file which calls the function will
 provide it with an input like this:
