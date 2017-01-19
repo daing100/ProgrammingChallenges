@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-#define VERSION 1.4
+#define VERSION "1.5.1"
 
 
 void split(const std::string &s, char delim, std::vector<std::string> &elems) {
@@ -28,10 +28,11 @@ void printHelp(){
 	std::cout << "  -i arg        Designates the input file as \"arg\".\n";
 	std::cout << "  -o arg        Designates the output cpp file as \"arg\".\n";
 	std::cout << "  -h            Displays this message. Skips everything else.\n";
+	std::cout << "  -d            Debug mode.\n";
 	std::cout << "  -rm           Removes the cpp file upon compilation.\n";
 	std::cout << "  -dc           Disables automatic compilation.\n";
 	std::cout << "  -uspc         Makes the delimiter space. Makes strings difficult.\n";
-	std::cout << "  -cdlm arg     Makes 'arg' the delimiter.\n";
+	std::cout << "  -cdlm arg     Makes 'arg' the delimiter. Overrides -uspc.\n";
 }
 
 void printVersion(){
@@ -46,6 +47,7 @@ int main(int argc, char *argv[]){
 	bool removeFile = 0;
 	bool notHelp = 1;
 	bool compile = 1;
+	bool debugMode = 0;
 	char delim_ = ':';
 
 	if(argc > 1){
@@ -57,6 +59,8 @@ int main(int argc, char *argv[]){
 			} else if(temp == "-o"){
 				ofile = argv[i+1];
 				i++;
+			} else if(temp == "-d"){
+				debugMode = 1;
 			} else if(temp == "-i"){
 				ifile = argv[i+1];
 				i++;
@@ -66,17 +70,18 @@ int main(int argc, char *argv[]){
 				removeFile = 1;
 			} else if(temp == "-dc"){
 				compile = 0;
-			} else if(temp == "-uspc" || "--use-space-as-delim"){
-				delim_ = ' ';
-			} else if(temp == "-cdlm" || "--custom-delim"){
-				delim_ = argv[i+1][0];
-				i++;
-			} else if(temp == "-v" || "--version"){
+			} else if(temp == "-v"){
 				printVersion();
 				return 0;
+			} else if(temp == "-uspc"){
+				delim_ = ' ';
+			} else if(temp == "-cdlm"){
+				delim_ = argv[i+1][0];
+				i++;
 			} else {
-				std::cout << "Unrecognized command\n";
+				std::cout << "ERROR: Unrecognized command\n" << std::endl;
 				printHelp();
+				return -1;
 			}
 		}
 	} else {
@@ -84,6 +89,8 @@ int main(int argc, char *argv[]){
 		notHelp = 0;
 	}
 	if(notHelp){
+		std::cout << "Delimiter is: '" << delim_ << "'\n" << std::endl;
+
 		int linecount = 0;
 
 		std::string line;
@@ -102,7 +109,7 @@ int main(int argc, char *argv[]){
 		std::vector<std::string> container;
 		if(!copyfile){
 			outfile << "#include <iostream>\n#include <stdlib.h>\n#include <string>\n#include <vector>\n\nusing namespace std;\n\n";
-			outfile << "int std_var = 0;\nint *b = &std_var;\nstring std_str = \"\";\nstring *c = &std_str;\n\n";
+			outfile << "int std_var = 0;\nint *std_con_1 = &std_var;\nstring std_str = \"\";\nstring *std_con_2 = &std_str;\n\n";
 			outfile << "int main(){\n";
 
 			int ifs = 0;
@@ -122,14 +129,16 @@ int main(int argc, char *argv[]){
 					}
 				}
 
-				std::cout << container[ifs+elses] << " : " << ifs+elses << std::endl;
+				if(debugMode){
+					std::cout << container[ifs+elses] << " : " << ifs+elses << std::endl;
+				}
 
 				// Basic functionality
 				if(container[ifs+elses] == "make"){
 					outfile << container[ifs+elses+1] << " " << container[ifs+elses+2] << " = " << container[ifs+elses+3] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "use"){
-					outfile << "b = &" << container[ifs+elses+1] << ";" << std::endl;
+					outfile << "std_con_1 = &" << container[ifs+elses+1] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "<<<"){
 					outfile << container[ifs+elses+1] << ":" << std::endl;
@@ -138,43 +147,43 @@ int main(int argc, char *argv[]){
 					outfile << "goto " << container[ifs+elses+1] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "="){
-					outfile << "*b = " << container[ifs+elses+1] << ";" << std::endl;
+					outfile << "*std_con_1 = " << container[ifs+elses+1] << ";" << std::endl;
 				}
 				
 				// Arithmetic
 				
 				else if(container[ifs+elses] == "+"){
-					outfile << "*b += " << container[ifs+elses+1] << ";" << std::endl;
+					outfile << "*std_con_1 += " << container[ifs+elses+1] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "+="){
-					outfile << "*b = " << container[ifs+elses+1] << " + " << container[ifs+elses+2] << ";" << std::endl;
+					outfile << "*std_con_1 = " << container[ifs+elses+1] << " + " << container[ifs+elses+2] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "-") {
-					outfile << "*b -= " << container[ifs+elses+1] << ";" << std::endl;
+					outfile << "*std_con_1 -= " << container[ifs+elses+1] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "-="){
-					outfile << "*b = " << container[ifs+elses+1] << " - " << container[ifs+elses+2] << ";" << std::endl;
+					outfile << "*std_con_1 = " << container[ifs+elses+1] << " - " << container[ifs+elses+2] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "*") {
-					outfile << "*b *= " << container[ifs+elses+1] << ";" << std::endl;
+					outfile << "*std_con_1 *= " << container[ifs+elses+1] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "*="){
-					outfile << "*b = " << container[ifs+elses+1] << " * " << container[ifs+elses+2] << ";" << std::endl;
+					outfile << "*std_con_1 = " << container[ifs+elses+1] << " * " << container[ifs+elses+2] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "/") {
-					outfile << "*b /= " << container[ifs+elses+1] << ";" << std::endl;
+					outfile << "*std_con_1 /= " << container[ifs+elses+1] << ";" << std::endl;
 				}
 				else if(container[ifs+elses] == "/="){
-					outfile << "*b = " << container[ifs+elses+1] << " / " << container[ifs+elses+2] << ";" << std::endl;
+					outfile << "*std_con_1 = " << container[ifs+elses+1] << " / " << container[ifs+elses+2] << ";" << std::endl;
 				}
 				
 				// I/O stuff
 				
 				else if(container[ifs+elses] == "say") {
-					outfile << "cout << *b;" << std::endl;
+					outfile << "cout << *std_con_1;" << std::endl;
 				}
 				else if(container[ifs+elses] == "sayc") {
-					outfile << "cout << *c;" << std::endl;
+					outfile << "cout << *std_con_2;" << std::endl;
 				}
 				else if(container[ifs+elses] == "sayv"){
 					//std::cout << "--\n" << ifs << std::endl << elses << "\n--" << std::endl;
@@ -184,7 +193,7 @@ int main(int argc, char *argv[]){
 					}
 					outfile << ";" << std::endl;
 				} else if(container[ifs+elses] == "listen") {
-					outfile << "cin >> *c;" << std::endl;
+					outfile << "cin >> *std_con_1;" << std::endl;
 				}
 				else if(container[ifs+elses] == "listenv") {
 					outfile << "cin >> " << container[ifs+elses+1] << ";" << std::endl;
@@ -204,12 +213,12 @@ int main(int argc, char *argv[]){
 				else if(container[ifs+elses] == "if"){
 					++total_ifs;
 					// std::cout << container[ifs+elses+1] << "\n" << container[ifs+elses+2] << std::endl;
-					outfile << "bool t_" << total_ifs << " = (*b " << container[ifs+elses+1] << " " << container[ifs+elses+2] << ");" << std::endl;
+					outfile << "bool t_" << total_ifs << " = (*std_con_1 " << container[ifs+elses+1] << " " << container[ifs+elses+2] << ");" << std::endl;
 					outfile << "if(t_" << total_ifs << "){" << std::endl;
 					++ifs;
 				} else if(container[ifs+elses] == "ife"){
 					++total_ifs;
-					outfile << "bool t_" << total_ifs << " = (*b " << container[ifs+elses+1] << " " << container[ifs+elses+2] << " == " << container[ifs+elses+3] << ");" << std::endl;
+					outfile << "bool t_" << total_ifs << " = (*std_con_1 " << container[ifs+elses+1] << " " << container[ifs+elses+2] << " == " << container[ifs+elses+3] << ");" << std::endl;
 					outfile << "if(t_" << total_ifs << "){" << std::endl;
 					++ifs;
 				} else if(container[ifs+elses] == "else"){
